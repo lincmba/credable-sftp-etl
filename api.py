@@ -26,6 +26,7 @@ TABLE_NAME = os.getenv("PG_TABLE", "data_store")
 API_KEY = os.getenv("API_KEY", "supersecretkey") # Change this in production
 DATA_PRIMARY_ID = os.getenv("DATA_PRIMARY_ID", "_id")
 ALGORITHM = "HS256"
+PG_DATE_COLUMN = os.getenv("PG_DATE_COLUMN", "start")
 
 # Create database engine
 engine = create_engine(f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
@@ -62,9 +63,9 @@ def get_data(
 
         # Filter by date range
         if start_date:
-            conditions.append(f"date >= '{start_date}'")
+            conditions.append(f"{PG_DATE_COLUMN} >= '{start_date}'")
         if end_date:
-            conditions.append(f"date <= '{end_date}'")
+            conditions.append(f"{PG_DATE_COLUMN} <= '{end_date}'")
 
         # Cursor-based pagination: Fetch records **after** the given cursor (DATA_PRIMARY_ID)
         if cursor:
