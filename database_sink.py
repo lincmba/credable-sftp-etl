@@ -16,7 +16,7 @@ class PostgresStorage:
         self.port = os.getenv("PG_PORT", "5432")
         self.table_name = os.getenv("PG_TABLE",
                                     "data_store")  # Table to store data
-
+        self.primary_key = os.getenv("DATA_PRIMARY_ID")
         # Create SQLAlchemy engine for easy Pandas DataFrame inserts
         self.engine = create_engine(
             f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.dbname}")
@@ -32,10 +32,15 @@ class PostgresStorage:
             return
 
         try:
-            # Append the data to the table, creating it if necessary
-            df.to_sql(self.table_name, self.engine, if_exists="append",
+            # Add the data to the table, creating it if necessary
+            df.to_sql(self.table_name, self.engine, if_exists="replace",
                       index=False)
             print(f"Stored {len(df)} rows into {self.table_name} table.")
+
+            if self.primary_key:
+                with self.engine.connect() as con:
+                    con.execute(
+                        f'ALTER TABLE {self.table_name} ADD PRIMARY KEY ({self.primary_key});')
 
         except Exception as e:
             print(f"Error inserting data into PostgreSQL: {e}")
