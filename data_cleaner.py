@@ -103,7 +103,7 @@ class DataCleaner:
         """
         df = self.clean_column_names(df)
         df = self.handle_missing_values(df, strategy="fill", fill_value="Unknown")  # Default: fill missing
-        df = self.remove_duplicates()
+        df = self.remove_duplicates(df)
         df = self.fix_data_types(df)
         return df
 
