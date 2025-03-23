@@ -11,8 +11,8 @@ class SFTPClient:
         self.private_key_path = os.getenv("SFTP_KEY")  # Optional SSH key
 
         # Directories from environment variables
-        self.remote_directory = os.getenv("SFTP_REMOTE_DIR", "/remote/path/")
-        self.local_directory = os.getenv("SFTP_LOCAL_DIR", "./downloaded_files/")
+        self.remote_directory = os.getenv("SFTP_REMOTE_DIR")
+        self.local_directory = os.getenv("SFTP_LOCAL_DIR")
 
         self.ssh_client = paramiko.SSHClient()
         self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -22,9 +22,15 @@ class SFTPClient:
         try:
             if self.private_key_path:
                 key = paramiko.RSAKey(filename=self.private_key_path)
-                self.ssh_client.connect(self.hostname, self.port, self.username, pkey=key)
+                self.ssh_client.connect(hostname=self.hostname, port=self.port, username=self.username, pkey=key)
             else:
-                self.ssh_client.connect(self.hostname, self.port, self.username, self.password)
+                self.ssh_client.connect(
+                    hostname=self.hostname,
+                    port=self.port,
+                    username=self.username,
+                    password=self.password,
+                    look_for_keys=False,
+                    allow_agent=False)
 
             self.sftp = self.ssh_client.open_sftp()
             print("SFTP connection established.")
