@@ -8,6 +8,9 @@ class DataCleaner:
         Initialize the DataCleaner with a directory containing CSV and JSON files.
         """
         self.directory = directory
+        self.primary_id = os.getenv("DATA_PRIMARY_ID", "_id")  # Default to "_id"
+        self.date_format = os.getenv("DATA_DATE_FORMAT", None)  # Default: Auto-detect
+
 
     def read_file(self, file_path):
         """
@@ -78,9 +81,13 @@ class DataCleaner:
 
     def remove_duplicates(self, df):
         """
-        Remove duplicate rows.
+        Remove duplicate rows based on the primary ID column if it exists.
         """
-        return df.drop_duplicates()
+        if self.primary_id in df.columns:
+            df = df.drop_duplicates(subset=[self.primary_id])
+        else:
+            df = df.drop_duplicates()
+        return df
 
     def fix_data_types(self, df):
         """
